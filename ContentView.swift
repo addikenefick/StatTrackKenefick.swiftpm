@@ -1,6 +1,6 @@
 import SwiftUI
 struct ContentView: View {
-    @State var routines: [Routine]
+    @State var routines = [Routine]()
     @State var addRoutine = false
     @State var newTeamName = ""
     @State var newTeamLevel = ""

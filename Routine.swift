@@ -4,9 +4,6 @@
 //
 //  Created by ADDISON KENEFICK on 10/31/25.
 //
-
-
-
 class Routine{
     var teamName: String
     var teamLevel: Int
