@@ -1,12 +1,16 @@
+import SwiftData
 import SwiftUI
+
 struct ContentView: View {
-    @State var routines = [Routine]()
+    @Environment(\.modelContext) var context
+    @Query var routines: [Routine]
     @State var addRoutine = false
     @State var newTeamName = ""
     @State var newTeamLevel = ""
     var body: some View{
-            VStack {
-                ZStack{
+        VStack{
+            NavigationStack {
+                ZStack {
                     Text("CHEER TRACKER")
                         .font(.largeTitle)
                         .bold()
@@ -22,10 +26,13 @@ struct ContentView: View {
                         .blur(radius: 1)
                         .padding()
                 }
-                List{
-                    ForEach(0..<routines.count, id:\.self){item in
-                        HStack{
-                            Text("\(routines[item].teamName)")
+                List {
+                    ForEach(routines) { routine in              HStack{
+                            Text(routine.teamName)
+                            NavigationLink("\(routine.teamLevel)") {
+                                TeamView(thisTeam: .constant(routine))
+
+                            }
                         }
                     }
                 }
@@ -37,20 +44,22 @@ struct ContentView: View {
                 .foregroundColor(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 15))
                 .padding()
-
+                
             }
             .alert("Add routine", isPresented: $addRoutine) {
                 TextField("Team Name:", text: $newTeamName)
                 TextField("Team Level:", text: $newTeamLevel)
-                Button("Add team"){
+                Button("Add team") {
                     addTeam()
+                       
                 }
             }
-        
+            
+        }
     }
-    func addTeam(){
-       
-            routines.append(Routine(teamName: newTeamName, teamLevel: Int(newTeamLevel)!))
-        
-    }
+    func addTeam() {
+            let newRoutine = Routine(teamName: newTeamName, teamLevel: newTeamLevel)
+            context.insert(newRoutine)
+            try? context.save()
+        }
 }

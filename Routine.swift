@@ -4,12 +4,14 @@
 //
 //  Created by ADDISON KENEFICK on 10/31/25.
 //
-class Routine{
+import SwiftData
+@Model
+class Routine {
     var teamName: String
-    var teamLevel: Int
-    var teamStunts: [String] = []
-    var teamTumbling: [String] = []
-    init(teamName: String, teamLevel: Int) {
+    var teamLevel: String
+    var skills = [""]
+    var practices: [String] = []
+    init(teamName: String, teamLevel: String) {
         self.teamName = teamName
         self.teamLevel = teamLevel
     }
