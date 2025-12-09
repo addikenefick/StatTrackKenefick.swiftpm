@@ -6,13 +6,25 @@
 //
 
 import SwiftUI
-
+import SwiftData
 struct PracticeView: View {
+    var thisPractice: Practice
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+        VStack {
+            Text("Practice Summary")
+                .font(.title2)
+                .bold()
 
-#Preview {
-    PracticeView()
+            Text("Hits: \(thisPractice.hits)")
+            Text("Total: \(thisPractice.total)")
+            Text("Percent: \(thisPractice.percent, specifier: "%.1f")%")
+                .padding()
+                .background(Color("newPink").opacity(0.2))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            Spacer()
+        }
+        .padding()
+    }
 }

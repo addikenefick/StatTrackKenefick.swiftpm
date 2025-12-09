@@ -17,10 +17,10 @@ let package = Package(
             name: "StatTrackKenefick",
             targets: ["AppModule"],
             bundleIdentifier: "clc.StatTrackKenefick",
-            teamIdentifier: "RG5PA294LV",
+            teamIdentifier: "LKW7UKGZ29",
             displayVersion: "1.0",
             bundleVersion: "1",
-            appIcon: .placeholder(icon: .smiley),
+            appIcon: .placeholder(icon: .cloud),
             accentColor: .asset("AccentColor"),
             supportedDeviceFamilies: [
                 .pad,

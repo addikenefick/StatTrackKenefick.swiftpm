@@ -8,8 +8,8 @@ struct ContentView: View {
     @State var newTeamName = ""
     @State var newTeamLevel = ""
     var body: some View{
-        VStack{
-            NavigationStack {
+        NavigationStack {
+            VStack{
                 ZStack {
                     Text("CHEER TRACKER")
                         .font(.largeTitle)
@@ -28,14 +28,15 @@ struct ContentView: View {
                 }
                 List {
                     ForEach(routines) { routine in              HStack{
-                            Text(routine.teamName)
-                            NavigationLink("\(routine.teamLevel)") {
-                                TeamView(thisTeam: .constant(routine))
-
-                            }
+                        Text(routine.teamName)
+                        NavigationLink("\(routine.teamLevel)") {
+                            TeamView(thisTeam: .constant(routine), percent: 0.0, hits: 0, total: 0)
+                            
                         }
                     }
+                    }
                 }
+                
                 Button("Add new routine") {
                     addRoutine = true
                 }
@@ -46,20 +47,33 @@ struct ContentView: View {
                 .padding()
                 
             }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        Image(systemName: "gear")
+                    }
+                }
+            }
+            
+            
+            
             .alert("Add routine", isPresented: $addRoutine) {
                 TextField("Team Name:", text: $newTeamName)
                 TextField("Team Level:", text: $newTeamLevel)
                 Button("Add team") {
                     addTeam()
-                       
+                    
                 }
             }
             
         }
     }
     func addTeam() {
-            let newRoutine = Routine(teamName: newTeamName, teamLevel: newTeamLevel)
-            context.insert(newRoutine)
-            try? context.save()
-        }
+        let newRoutine = Routine(teamName: newTeamName, teamLevel: newTeamLevel)
+        context.insert(newRoutine)
+        try? context.save()
+    }
 }

@@ -9,8 +9,11 @@ import SwiftData
 class Routine {
     var teamName: String
     var teamLevel: String
-    var skills = [""]
-    var practices: [String] = []
+    var skills: [String] = []
+    var practices: [Practice] = []
+    var theseHits: Int = 0
+    var thisPercent: Double = 0.0
+  
     init(teamName: String, teamLevel: String) {
         self.teamName = teamName
         self.teamLevel = teamLevel

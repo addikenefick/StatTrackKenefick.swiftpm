@@ -1,12 +1,12 @@
+import SwiftData
 //
 //  TeamView.swift
 //  StatTrackKenefick
 //
 //  Created by ADDISON KENEFICK on 11/5/25.
 //
-
 import SwiftUI
-import SwiftData
+
 struct TeamView: View {
     @Environment(\.modelContext) var context
     @Query var routines: [Routine]
@@ -15,11 +15,16 @@ struct TeamView: View {
     @State var logPractice = false
     @State var addedSkill = ""
     @State var practiceDate = Date()
-
+    @State var percent: Double
+    @State var hits: Int
+    @State var total: Int
+    @State var skillAnswers: [String: Bool] = [:]
+    
     var body: some View {
-        VStack{
+        VStack {
+            
             ZStack {
-                VStack{
+                HStack {
                     Text("\(thisTeam.teamName)")
                         .font(.largeTitle)
                         .bold()
@@ -33,7 +38,7 @@ struct TeamView: View {
                         .foregroundColor(.gray)
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
-                VStack{
+                HStack {
                     Text("\(thisTeam.teamName)")
                         .font(.largeTitle)
                         .bold()
@@ -56,15 +61,20 @@ struct TeamView: View {
                     Text("No practices yet")
                         .foregroundColor(.gray)
                 } else {
-                    ForEach(thisTeam.practices, id: \.self) { p in
-                        Text(p)
+                    ForEach(thisTeam.practices) { p in
+                        NavigationLink(
+                            "\(p.practiceDay.formatted(date: .numeric, time: .omitted))"
+                        ) {
+                            PracticeView(thisPractice: p)
+                        }
                     }
                 }
             }
-            HStack{
-                Button("Log practice"){
-                   logPractice = true
-                   
+            HStack {
+                Button("Log practice") {
+                    logPractice = true
+                    hits = 0
+                    
                 }
                 .frame(width: 165, height: 35)
                 .background(Color("newPink"))
@@ -73,7 +83,6 @@ struct TeamView: View {
                 .padding()
                 Button("Add skill") {
                     newSkill = true
-                    
                     
                 }
                 .frame(width: 165, height: 35)
@@ -84,32 +93,130 @@ struct TeamView: View {
                 
             }
             
-            .alert("Add Skill", isPresented: $newSkill){
-                TextField("What Skill?", text: $addedSkill)              
+            .alert("Add Skill", isPresented: $newSkill) {
+                TextField("What Skill?", text: $addedSkill)
                 Button("Add") {
                     thisTeam.skills.append(addedSkill)
                     try? context.save()
-                    print(addedSkill)
+                    
                 }
             }
             .sheet(isPresented: $logPractice) {
-                Form{
-                    DatePicker("Practice Date", selection: $practiceDate, in: Date()..., displayedComponents: .date)
+                VStack {
+                    
+                    ZStack {
+                        Text("PRACTICE LOG")
+                            .font(.title)
+                            .bold()
+                            .fontDesign(.serif)
+                            .foregroundColor(.gray)
+                        Text("PRACTICE LOG")
+                            .font(.title)
+                            .bold()
+                            .fontDesign(.serif)
+                            .foregroundColor(Color("newPink"))
+                            .blur(radius: 1)
+                            .padding()
+                    }
+                    DatePicker(
+                        "Select Practice Date",
+                        selection: $practiceDate,
+                        in: Date()...,
+                        displayedComponents: .date
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 5)
+                    
+                    Divider()
+                    
+                    ScrollView {
+                        VStack {
+                            ForEach(thisTeam.skills, id: \.self) { skill in
+                                HStack {
+                                    Text(skill)
+                                        .padding(.leading, 10)
+                                    Spacer()
+                                    Button("Yes") {
+                                        
+                                        skillAnswers[skill] = true
+                                        hits += 1
+                                        
+                                    }
+                                    .frame(width: 45, height: 30)
+                                    .background(Color("newPink"))
+                                    .foregroundColor(.black)
+                                    .clipShape(
+                                        RoundedRectangle(cornerRadius: 10)
+                                    )
+                                    .disabled(skillAnswers[skill] != nil)
+                                    
+                                    Button("No") {
+                                        
+                                        skillAnswers[skill] = false
+                                        
+                                    }
+                                    .frame(width: 45, height: 30)
+                                    .background(Color("newPink"))
+                                    .foregroundColor(.black)
+                                    .clipShape(
+                                        RoundedRectangle(cornerRadius: 10)
+                                    )
+                                    .disabled(skillAnswers[skill] != nil)
+                                    .padding(.trailing)
+                                }
+                                .padding(.vertical)
+                                
+                                Divider()
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .frame(maxHeight: 400)
+                    Button("Save") {
+                        loggingPractice()
+                        logPractice = false
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color("newPink"))
+                    .foregroundColor(.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal)
+                    .padding(.bottom, 10)
                 }
-                Button("Save"){
-                    loggingPractice()
-                    logPractice.toggle()
+                .onAppear {
+                    skillAnswers = [:]
+                    hits = 0
                 }
             }
         }
+        
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    Image(systemName: "gear")
+                }
+            }
+        }
+        
     }
-    func loggingPractice(){
     
-        thisTeam.practices.append("\(practiceDate)")
+    func loggingPractice() {
+        let total = max(thisTeam.skills.count, 1)
+        let percentt = (Double(hits) / Double(total)) * 100
+        
+        let newPractice = Practice(hits: hits, total: total, percent: percentt)
+        newPractice.practiceDay = practiceDate
+        
+        thisTeam.practices.append(newPractice)
+        
+        try? context.save()
     }
-  
+    
 }
-
 //
 //#Preview {
 //    TeamView()
